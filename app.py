@@ -26,8 +26,11 @@ def predict():
         empty_rows = pd.DataFrame(0,index=DATE_RANGE, columns=['transactions'])
         empty_rows.loc[transactions.index] = transactions
 
-        model = auto_arima(y=transactions, m=7)
+        model = auto_arima(y=empty_rows, m=7)
         preds = pd.Series(model.predict(n_periods=data['predictions']))
+
+        preds = preds.apply(lambda t: max(0, t)) #prevent negative predictions
+
         preds.name = 'predictions'
         return preds.to_json(orient='split', date_format='iso'), 200
     else:
